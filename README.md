@@ -180,6 +180,25 @@ from the "CONF" menu wins over it. If you want `make ota` to ask for a password,
 The version number is `PROJECT_VER` in `CMakeLists.txt`. The display shows it for a few seconds after
 switching on, and it's also in `/api/system`.
 
+### Updating over Wi-Fi
+
+Once the first version is on the board (over USB, with `make flash`), every later update can go over
+Wi-Fi. The box can stay closed and connected to the amplifier.
+
+```bash
+make ota                          # builds and sends the new firmware to 192.168.1.130
+make ota ADRES=192.168.1.57       # if your box has a different address
+```
+
+While it uploads, the display counts up (`U 12`, `U 45`, …). When it's done the box restarts by itself
+and shows the new version number for a few seconds. Your settings stay as they were: Wi-Fi, the
+Spotify login, volume and input. The whole thing takes about half a minute.
+
+The flash holds two copies of the firmware. The new one is written next to the running one, and the box
+only switches over once the upload is complete and checked, so a dropped connection halfway through
+changes nothing. There's no automatic way back, though: if the new version doesn't start properly, you
+need the USB cable again.
+
 ## Under the hood
 
 The Spotify part isn't mine. It comes from [cspot](https://github.com/feelfreelinux/cspot), an
@@ -207,6 +226,8 @@ up.
 If you want to poke at it: the web page uses a small JSON API (`/api/status`, `/api/system`,
 `/api/wejscie`, `/api/strojenie`, `/api/resety`). `/api/resety` lists the last ten restarts and why they
 happened. Without it I would not have found the bugs above.
+
+The full story of each bug, with the code and the fix, is in [docs/cspot-bledy.md](docs/cspot-bledy.md).
 
 Code comments are in Polish.
 
@@ -394,6 +415,25 @@ z menu „CONF” ma przed nią pierwszeństwo. Jeśli chcesz, żeby `make ota` 
 Numer wersji to `PROJECT_VER` w `CMakeLists.txt`. Wyświetlacz pokazuje go przez kilka sekund po
 włączeniu, jest też w `/api/system`.
 
+### Aktualizacja przez Wi-Fi
+
+Gdy pierwsza wersja jest już na płytce (przez USB, `make flash`), każdą następną można wgrać przez
+Wi-Fi. Obudowa zostaje zamknięta, a urządzenie podłączone do wzmacniacza.
+
+```bash
+make ota                          # kompiluje i wysyła nowy program do 192.168.1.130
+make ota ADRES=192.168.1.57       # jeśli Twoje urządzenie ma inny adres
+```
+
+W trakcie wysyłania wyświetlacz odlicza (`U 12`, `U 45`, …). Po wszystkim urządzenie samo się
+restartuje i przez kilka sekund pokazuje nowy numer wersji. Ustawienia zostają bez zmian: Wi-Fi, login
+Spotify, głośność i wejście. Całość trwa około pół minuty.
+
+Pamięć mieści dwie kopie programu. Nowa zapisuje się obok działającej, a urządzenie przełącza się na nią
+dopiero wtedy, gdy przyszła w całości i jest sprawdzona, więc przerwane połączenie w połowie niczego nie
+psuje. Nie ma za to automatycznego powrotu: jeśli nowa wersja nie wystartuje poprawnie, potrzebny jest
+znowu kabel USB.
+
 ## Pod spodem
 
 Część od Spotify nie jest moja. To [cspot](https://github.com/feelfreelinux/cspot), otwarty klient
@@ -421,6 +461,8 @@ nadążało.
 Jeśli chcesz pogrzebać: strona WWW korzysta z małego API w JSON (`/api/status`, `/api/system`,
 `/api/wejscie`, `/api/strojenie`, `/api/resety`). `/api/resety` pokazuje dziesięć ostatnich restartów
 z przyczyną. Bez niego tych błędów bym nie znalazł.
+
+Dokładny opis każdego błędu, z kodem i poprawką, jest w [docs/cspot-bledy.md](docs/cspot-bledy.md).
 
 Komentarze w kodzie są po polsku.
 
