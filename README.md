@@ -119,27 +119,33 @@ start, and it is also in `/api/system`.
 
 ## Under the hood
 
-The firmware is C++ on ESP-IDF 5.5. Spotify Connect comes from
-[cspot](https://github.com/feelfreelinux/cspot), an open-source Spotify client for microcontrollers.
-`setup.sh` downloads it and applies the patches from `patches/`. While getting this to play for hours
-without a reset I found and fixed several bugs in cspot and its audio library:
+The Spotify part isn't mine. It comes from [cspot](https://github.com/feelfreelinux/cspot), an
+open-source Spotify client small enough to fit on a chip like the ESP32. The first `make` runs
+`setup.sh`, which downloads it and applies my fixes from `patches/`.
 
-- a pause fade-out that wrote one sample past the end of its buffer (`<=` instead of `<`), the main
-  cause of random reboots,
-- an inverted "buffer full" check that slowly shifted the audio data out of alignment,
-- a 4 KB stack that overflowed whenever the connection to Spotify was re-established,
-- missing locks in the Spotify message handling, used from several threads at once,
-- a ping timer that started at −1, so the connection was dropped as "silent" right after start.
+Those fixes took most of the time. At first the box would play for a few minutes and then restart on its
+own, usually right when I pressed pause or switched to TV. Once I tracked them down, the causes were:
 
-Two more things kept playback smooth: a 9-second audio buffer in PSRAM, and running the DSP only during
-the pause fade-out. Before that it converted every sample to float and back for nothing, and the decoder
-could barely keep up.
+- When you pause, the music fades out over half a second. The fade-out code went one step too far and
+  wrote into memory that belonged to something else. That alone explains most of the restarts.
+- The audio buffer had its "full" check backwards. When it filled up, bits of sound were cut off and
+  the rest slid out of place.
+- Every time the connection to Spotify dropped and came back, the part of the program that handles it
+  ran out of working memory and crashed.
+- The knob, the remote and the web page could all talk to Spotify at the same moment, and the library
+  wasn't built for that.
+- Right after start, a timer decided Spotify had been silent for ages and hung up.
 
-The web page talks to a small JSON API: `/api/status`, `/api/system`, `/api/wejscie`, `/api/strojenie`
-and `/api/resety`. The last one is a log of the last ten restarts with their reason, which helped a lot
-when hunting the crashes.
+On a weaker Wi-Fi signal the sound still stuttered. Two changes fixed it: a bigger buffer, now 9 seconds
+of music, and switching off a sound-processing step that touched every sample even though it only does
+anything during the pause fade-out. The chip was spending a lot of time on it, and decoding barely kept
+up.
 
-Comments in the code are in Polish.
+If you want to poke at it: the web page uses a small JSON API (`/api/status`, `/api/system`,
+`/api/wejscie`, `/api/strojenie`, `/api/resety`). `/api/resety` lists the last ten restarts and why they
+happened. Without it I would not have found the bugs above.
+
+Code comments are in Polish.
 
 ## License
 
@@ -262,25 +268,33 @@ jest też w `/api/system`.
 
 ## Pod spodem
 
-Program jest w C++ na ESP-IDF 5.5. Spotify Connect daje [cspot](https://github.com/feelfreelinux/cspot),
-otwarty klient Spotify dla mikrokontrolerów. `setup.sh` pobiera go i nakłada łatki z `patches/`. Zanim
-całość zaczęła grać godzinami bez restartu, znalazłem i poprawiłem kilka błędów w cspot i jego
-bibliotece audio:
+Część od Spotify nie jest moja. To [cspot](https://github.com/feelfreelinux/cspot), otwarty klient
+Spotify na tyle mały, że mieści się w ESP32. Przy pierwszym `make` skrypt `setup.sh` pobiera go
+i nakłada moje poprawki z `patches/`.
 
-- wyciszanie przy pauzie zapisywało jedną próbkę za końcem bufora (`<=` zamiast `<`); to była główna
-  przyczyna losowych restartów,
-- odwrócony warunek „bufor pełny”, przez który dane audio powoli się rozjeżdżały,
-- stos 4 KB, który przepełniał się przy każdym ponownym łączeniu ze Spotify,
-- brak blokad w obsłudze komunikatów Spotify, używanej z kilku wątków naraz,
-- licznik pingu zaczynający od −1, przez co połączenie było zrywane jako „ciche” zaraz po starcie.
+Na te poprawki poszło najwięcej czasu. Na początku urządzenie grało kilka minut i samo się restartowało,
+najczęściej wtedy, gdy wciskałem pauzę albo przełączałem na telewizor. Przyczyny okazały się takie:
 
-Płynne granie dały jeszcze dwie rzeczy: bufor audio na 9 sekund w PSRAM i DSP włączany tylko przy
-wyciszaniu na pauzę. Wcześniej zamieniał każdą próbkę na liczbę zmiennoprzecinkową i z powrotem bez
-żadnego efektu, a dekoder ledwo nadążał.
+- Przy pauzie muzyka cichnie przez pół sekundy. Kod tego wyciszania robił o jeden krok za dużo
+  i zapisywał w pamięci, która należała do czegoś innego. To tłumaczy większość restartów.
+- Bufor dźwięku miał odwrotnie sprawdzane, czy jest pełny. Gdy się zapełnił, kawałki muzyki były
+  ucinane, a reszta się rozjeżdżała.
+- Za każdym razem, gdy połączenie ze Spotify zrywało się i wracało, części programu, która się tym
+  zajmuje, brakowało pamięci roboczej i padała.
+- Gałka, pilot i strona WWW mogły odezwać się do Spotify w tej samej chwili, a biblioteka nie była na
+  to przygotowana.
+- Zaraz po starcie licznik uznawał, że Spotify od dawna milczy, i rozłączał.
 
-Strona WWW korzysta z małego API w JSON: `/api/status`, `/api/system`, `/api/wejscie`, `/api/strojenie`
-i `/api/resety`. To ostatnie to dziennik dziesięciu ostatnich restartów z przyczyną, który bardzo pomógł
-przy szukaniu wywrotek.
+Przy słabszym Wi-Fi dźwięk dalej się zacinał. Pomogły dwie zmiany: większy bufor, teraz na 9 sekund
+muzyki, i wyłączenie przetwarzania dźwięku, które obrabiało każdą próbkę, choć do czegokolwiek jest
+potrzebne tylko przy wyciszaniu na pauzę. Procesor tracił na nie sporo czasu i dekodowanie ledwo
+nadążało.
+
+Jeśli chcesz pogrzebać: strona WWW korzysta z małego API w JSON (`/api/status`, `/api/system`,
+`/api/wejscie`, `/api/strojenie`, `/api/resety`). `/api/resety` pokazuje dziesięć ostatnich restartów
+z przyczyną. Bez niego tych błędów bym nie znalazł.
+
+Komentarze w kodzie są po polsku.
 
 ## Licencja
 
