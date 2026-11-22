@@ -1,16 +1,22 @@
-# Audio mini – Spotify for a classic amplifier, on an ESP32
+# Audio mini – a small stereo amplifier with Spotify, on an ESP32
 
-*Polska wersja niżej – [przejdź do opisu po polsku](#audio-mini--spotify-dla-klasycznego-wzmacniacza-na-esp32).*
+*Polska wersja niżej – [przejdź do opisu po polsku](#audio-mini--mały-wzmacniacz-stereo-ze-spotify-na-esp32).*
 
-![Main board, 3D render from KiCad](docs/input_selector_3d.png)
+![Audio mini with the lid off: amplifier module, power supply, controller board and the front panel display](docs/audio_mini_wnetrze.jpg)
 
-I have a good old stereo amplifier and speakers I like. What I wanted was simple: pick up my phone,
-choose "Audio mini" in Spotify, and music comes out of those speakers. TV and the turntable should keep
-working too, with one knob and one remote for everything, and no extra box that needs its own app.
+*Audio mini with the lid off: the class-D amplifier module on the left, the 24 V power supply on the
+right, the controller board with the ESP32 at the back, and the 14-segment display and volume knob on
+the front panel.*
 
-This project is that box. A small board sits in front of the amplifier and does three jobs: it is a
-Spotify Connect speaker, it selects the input (Spotify, TV or Phono) with relays, and it controls the
-volume with an analog volume chip, so TV and vinyl never pass through anything digital. The volume knob,
+What I wanted was simple: pick up my phone, choose "Audio mini" in Spotify, and music comes out of my
+speakers. TV and the turntable should keep working too, with one knob and one remote for everything,
+and no extra box that needs its own app.
+
+So I built a small amplifier that does all of it. Inside the aluminium case there is a class-D
+amplifier module (HW-576), a 24 V power supply and the controller board from this repository. The
+controller does three jobs: it is a Spotify Connect speaker, it selects the input (Spotify, TV or
+Phono) with relays, and it controls the volume with an analog volume chip, so TV and vinyl never pass
+through anything digital. The volume knob,
 the IR remote, the Spotify app on the phone and a small web page all share the same volume and the same
 state. Turn the knob and the slider on your phone moves with it.
 
@@ -62,6 +68,8 @@ maintenance and costs a fraction of the price.
 KiCad projects are in `pcb/`: `input_selector` is the main board (the schematic is also in PDF) and
 `speaker_delay` is the speaker relay board. The images are 3D renders from KiCad; the ESP32, DAC and
 power modules have no 3D models, so only their outlines and pin labels are visible.
+
+![Main board, 3D render from KiCad](docs/input_selector_3d.png)
 
 | Main board (`input_selector`) | Speaker relay boards (`speaker_delay`) |
 |---|---|
@@ -139,15 +147,19 @@ GPL-3.0 (see `LICENSE`), the same license as cspot, which the firmware is built 
 
 ---
 
-# Audio mini – Spotify dla klasycznego wzmacniacza, na ESP32
+# Audio mini – mały wzmacniacz stereo ze Spotify, na ESP32
 
-Mam stary, dobry wzmacniacz i kolumny, które lubię. Chciałem prostej rzeczy: biorę telefon, wybieram
-w Spotify „Audio mini” i muzyka gra z tych kolumn. Telewizor i gramofon mają działać dalej, wszystko
-z jednej gałki i jednego pilota, bez kolejnego pudełka z osobną aplikacją.
+![Audio mini bez pokrywy](docs/audio_mini_wnetrze.jpg)
 
-![Płyta główna, widok 3D z KiCad](docs/input_selector_3d.png)
+*Audio mini bez pokrywy: moduł wzmacniacza klasy D z lewej, zasilacz 24 V z prawej, płytka sterownika
+z ESP32 z tyłu, a na panelu przednim wyświetlacz 14-segmentowy i gałka głośności.*
 
-Ten projekt jest takim pudełkiem. Mała płytka stoi przed wzmacniaczem i robi trzy rzeczy: jest
+Chciałem prostej rzeczy: biorę telefon, wybieram w Spotify „Audio mini” i muzyka gra z moich kolumn.
+Telewizor i gramofon mają działać dalej, wszystko z jednej gałki i jednego pilota, bez kolejnego pudełka
+z osobną aplikacją.
+
+Zbudowałem więc mały wzmacniacz, który robi to wszystko. W aluminiowej obudowie jest moduł wzmacniacza
+klasy D (HW-576), zasilacz 24 V i płytka sterownika z tego repozytorium. Sterownik robi trzy rzeczy: jest
 głośnikiem Spotify Connect, przełącza wejścia (Spotify, TV, Phono) przekaźnikami i reguluje głośność
 analogowym układem, więc dźwięk z telewizora i z płyty nie przechodzi przez nic cyfrowego. Gałka, pilot,
 aplikacja Spotify w telefonie i mała strona WWW mają wspólną głośność i wspólny stan. Kręcisz gałką,
@@ -201,6 +213,8 @@ ułamek ceny.
 Projekty KiCad są w `pcb/`: `input_selector` to płyta główna (schemat także w PDF), a `speaker_delay`
 to płytka przekaźnika kolumn. Obrazy to widoki 3D z KiCad; moduły ESP32, DAC i zasilania nie mają
 modeli 3D, więc widać tylko ich obrysy i opisy pinów.
+
+![Płyta główna, widok 3D z KiCad](docs/input_selector_3d.png)
 
 | Płyta główna (`input_selector`) | Płytki przekaźnika kolumn (`speaker_delay`) |
 |---|---|
