@@ -2,6 +2,8 @@
 
 *Polska wersja niżej – [przejdź do opisu po polsku](#audio-mini--spotify-dla-klasycznego-wzmacniacza-na-esp32).*
 
+![Main board, 3D render from KiCad](docs/input_selector_3d.png)
+
 I have a good old stereo amplifier and speakers I like. What I wanted was simple: pick up my phone,
 choose "Audio mini" in Spotify, and music comes out of those speakers. TV and the turntable should keep
 working too, with one knob and one remote for everything, and no extra box that needs its own app.
@@ -58,7 +60,17 @@ maintenance and costs a fraction of the price.
 | spare connector | for future ideas | ZAP3, GPIO 15 |
 
 KiCad projects are in `pcb/`: `input_selector` is the main board (the schematic is also in PDF) and
-`speaker_delay` is the speaker relay board.
+`speaker_delay` is the speaker relay board. The images are 3D renders from KiCad; the ESP32, DAC and
+power modules have no 3D models, so only their outlines and pin labels are visible.
+
+| Main board (`input_selector`) | Speaker relay boards (`speaker_delay`) |
+|---|---|
+| ![Main board, top view](docs/input_selector_gora.png) | ![Speaker relay boards, top view](docs/speaker_delay_gora.png) |
+
+On the main board, top row: the three input relays with their driver transistors, the PT2258 volume chip
+and the regulators for the analog part. Bottom: the PCM5102A DAC module (left), the ESP32 DevKitC
+(middle) and the place for an LM2596 converter (U4, right), which I later replaced with a separate
+5 V adapter.
 
 ### Things I learned the hard way
 
@@ -133,6 +145,8 @@ Mam stary, dobry wzmacniacz i kolumny, które lubię. Chciałem prostej rzeczy: 
 w Spotify „Audio mini” i muzyka gra z tych kolumn. Telewizor i gramofon mają działać dalej, wszystko
 z jednej gałki i jednego pilota, bez kolejnego pudełka z osobną aplikacją.
 
+![Płyta główna, widok 3D z KiCad](docs/input_selector_3d.png)
+
 Ten projekt jest takim pudełkiem. Mała płytka stoi przed wzmacniaczem i robi trzy rzeczy: jest
 głośnikiem Spotify Connect, przełącza wejścia (Spotify, TV, Phono) przekaźnikami i reguluje głośność
 analogowym układem, więc dźwięk z telewizora i z płyty nie przechodzi przez nic cyfrowego. Gałka, pilot,
@@ -185,7 +199,16 @@ ułamek ceny.
 | wolne złącze | na przyszłe pomysły | ZAP3, GPIO 15 |
 
 Projekty KiCad są w `pcb/`: `input_selector` to płyta główna (schemat także w PDF), a `speaker_delay`
-to płytka przekaźnika kolumn.
+to płytka przekaźnika kolumn. Obrazy to widoki 3D z KiCad; moduły ESP32, DAC i zasilania nie mają
+modeli 3D, więc widać tylko ich obrysy i opisy pinów.
+
+| Płyta główna (`input_selector`) | Płytki przekaźnika kolumn (`speaker_delay`) |
+|---|---|
+| ![Płyta główna, widok z góry](docs/input_selector_gora.png) | ![Płytki przekaźnika kolumn, widok z góry](docs/speaker_delay_gora.png) |
+
+Na płycie głównej u góry są trzy przekaźniki wejść z tranzystorami, układ głośności PT2258 i stabilizatory
+części analogowej. Na dole: moduł DAC PCM5102A (z lewej), ESP32 DevKitC (w środku) i miejsce na
+przetwornicę LM2596 (U4, z prawej), którą później zastąpiłem osobnym zasilaczem 5 V.
 
 ### Czego nauczyło mnie uruchamianie
 
