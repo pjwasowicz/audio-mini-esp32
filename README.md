@@ -1,6 +1,6 @@
-# Audio mini – a small stereo amplifier with Spotify, on an ESP32
+# Audio mini: a small stereo amplifier with Spotify, on an ESP32
 
-*Polska wersja niżej – [przejdź do opisu po polsku](#audio-mini--mały-wzmacniacz-stereo-ze-spotify-na-esp32).*
+*Polska wersja niżej: [przejdź do opisu po polsku](#audio-mini-mały-wzmacniacz-stereo-ze-spotify-na-esp32).*
 
 ![Audio mini with the lid off: amplifier module, power supply, controller board and the front panel display](docs/audio_mini_wnetrze.jpg)
 
@@ -8,54 +8,61 @@
 right, the controller board with the ESP32 at the back, and the 14-segment display and volume knob on
 the front panel.*
 
-What I wanted was simple: pick up my phone, choose "Audio mini" in Spotify, and music comes out of my
-speakers. TV and the turntable should keep working too, with one knob and one remote for everything,
-and no extra box that needs its own app.
+What I wanted was simple: pick up my phone, choose "Audio mini" in Spotify, and hear music from my
+speakers. The TV and the turntable had to keep working too, all from one knob and one remote, with no
+extra box that needs its own app.
 
-So I built a small amplifier that does all of it. Inside the aluminium case there is a class-D
-amplifier module (HW-576), a 24 V power supply and the controller board from this repository. The
-controller does three jobs: it is a Spotify Connect speaker, it selects the input (Spotify, TV or
-Phono) with relays, and it controls the volume with an analog volume chip, so TV and vinyl never pass
-through anything digital. The volume knob,
-the IR remote, the Spotify app on the phone and a small web page all share the same volume and the same
-state. Turn the knob and the slider on your phone moves with it.
+So I built a small amplifier that does it. Inside the aluminium case there's a class-D amplifier module
+(HW-576), a 24 V power supply and the controller board from this repository. The controller plays
+Spotify, switches between Spotify, TV and the turntable with relays, and sets the volume with an analog
+chip, so the TV and records never go through anything digital. The knob, the remote, the Spotify app
+and a small web page all control the same volume. Turn the knob and the slider on your phone moves
+with it.
 
 It started on a Raspberry Pi. That worked, but a Pi is a whole computer to look after: an SD card, an
-operating system, updates, and a slow boot. The ESP32 version starts in a few seconds, needs no
-maintenance and costs a fraction of the price.
+operating system, updates, and a slow start. The ESP32 version is ready a few seconds after you switch
+it on, needs no looking after, and costs a fraction of the price.
 
-## What it does in everyday use
+## Using it
 
-- **Spotify on the amplifier.** "Audio mini" shows up in the Spotify app like any Connect speaker
-  (Premium account needed). Anyone at home can connect from their own phone and account. The device
-  remembers the last login and reconnects by itself after a power cut.
-- **Automatic switching.** Press play in Spotify and the amplifier switches to the Spotify input. Switch
-  to TV and Spotify pauses on its own.
-- **One volume for everything.** Knob, remote, phone and web page change the same analog volume
-  (PT2258). Quiet listening gets fine 1 dB steps; the curve can be tuned in the web page.
-- **No pops, no thumps.** The speakers sit on their own relay. They connect only after everything is
-  powered, the right input is selected and the volume chip has confirmed its settings twice. The same
-  happens on every input change.
-- **Goes quiet by itself.** On the Spotify input the speakers disconnect after 30 seconds of silence and
-  the display shows a dimmed clock. TV and Phono switch off after 3 hours without touching anything;
-  press 2 or 3 on the remote to bring them back.
-- **A retro display.** Four red 14-segment characters, like an 80s tuner: the clock, the scrolling song
-  title and artist, "V 42" while you turn the volume, the input name. On TV and Phono a small dot next to
-  the clock tells you which input is on.
-- **A remote.** The cheap 21-button IR remote: volume, play/pause, next and previous track, inputs
-  1/2/3, mute.
-- **A web page.** Open `http://<device-address>:8080` on your phone: now playing with album art,
-  volume, inputs, the volume curve and system info (Wi-Fi signal, audio buffer, version).
-- **Wi-Fi setup without a computer.** Choose "CONF" in the knob menu, connect your phone to the
-  "Audio mini config" network, pick your home network and type the password.
-- **Updates over Wi-Fi.** `make ota` builds the firmware and sends it to the device. The case stays
-  closed.
+You pick "Audio mini" in the Spotify app like any other Connect speaker (you need Premium). Anyone at
+home can connect from their own phone and account. After a power cut it remembers the last login and
+connects again by itself.
+
+Press play in Spotify and the amplifier switches to Spotify on its own. Switch to TV and Spotify pauses.
+
+The knob, the remote, the phone and the web page all move the same volume. At low volume each click of
+the knob is a small 1 dB step, so late-evening listening is easy to set. The shape of the volume curve
+can be changed on the web page.
+
+You shouldn't hear a pop when you switch it on or change inputs. The speakers have their own relay and
+connect a couple of seconds later, once everything has power, the right input is on and the volume chip
+has confirmed its settings twice.
+
+On Spotify, after 30 seconds of silence the speakers disconnect and the display dims to a clock. TV and
+the turntable switch off after 3 hours if nobody touches anything; press 2 or 3 on the remote to bring
+them back.
+
+The display is four red 14-segment characters, like on an 80s tuner. It shows the time, the scrolling
+title and artist, "V 42" while you turn the volume, and the input name. On TV and the turntable a small
+dot next to the clock tells you which one is on.
+
+The remote is the cheap 21-button infrared kind: volume, play and pause, next and previous track,
+inputs 1, 2 and 3, and mute.
+
+The web page (`http://<device-address>:8080`) shows what's playing with the album cover, the volume,
+the inputs, the volume curve and a few numbers about the device, like Wi-Fi signal and version.
+
+To change the Wi-Fi network you don't need a computer: choose "CONF" in the knob menu, connect your
+phone to the "Audio mini config" network, pick your home network and type the password.
+
+New firmware goes over Wi-Fi with `make ota`, so the case stays closed.
 
 ## The hardware
 
 | Part | What it does | Connection |
 |---|---|---|
-| ESP32-DevKitC-VIE (ESP32-WROVER-IE, 8 MB PSRAM, external antenna) | brain, Wi-Fi, Spotify | – |
+| ESP32-DevKitC-VIE (ESP32-WROVER-IE, 8 MB PSRAM, external antenna) | brain, Wi-Fi, Spotify | (none) |
 | PCM5102A DAC module | Spotify audio → analog | I2S: BCK 26, LCK 25, DIN 27 |
 | PT2258 | analog volume control | I2C 0x44 (SDA 21, SCL 22) |
 | HT16K33 + 4 × 14-segment LED (0.54") | display | I2C 0x70 |
@@ -65,9 +72,9 @@ maintenance and costs a fraction of the price.
 | EC11 rotary encoder with button | volume and menu | A 32, B 33, button 14 |
 | spare connector | for future ideas | ZAP3, GPIO 15 |
 
-KiCad projects are in `pcb/`: `input_selector` is the main board (the schematic is also in PDF) and
-`speaker_delay` is the speaker relay board. The images are 3D renders from KiCad; the ESP32, DAC and
-power modules have no 3D models, so only their outlines and pin labels are visible.
+The KiCad files are in `pcb/`: `input_selector` is the main board (there's a PDF of the schematic too)
+and `speaker_delay` is the small speaker relay board. The pictures below are 3D views from KiCad. The
+ESP32, the DAC and the power module have no 3D models, so you only see their outlines.
 
 ![Main board, 3D render from KiCad](docs/input_selector_3d.png)
 
@@ -75,32 +82,35 @@ power modules have no 3D models, so only their outlines and pin labels are visib
 |---|---|
 | ![Main board, top view](docs/input_selector_gora.png) | ![Speaker relay boards, top view](docs/speaker_delay_gora.png) |
 
-On the main board, top row: the three input relays with their driver transistors, the PT2258 volume chip
-and the regulators for the analog part. Bottom: the PCM5102A DAC module (left), the ESP32 DevKitC
-(middle) and the place for an LM2596 converter (U4, right), which I later replaced with a separate
-5 V adapter.
+Along the top of the main board are the three input relays, the PT2258 volume chip and the regulators
+for the audio part. Along the bottom: the DAC module on the left, the ESP32 in the middle, and on the
+right the spot for an LM2596 converter (U4), which I later swapped for a separate 5 V adapter.
 
-### Things I learned the hard way
+### What I learned building it
 
-- **Power the digital part from its own 5 V supply.** With the ESP32 on the same supply as the audio
-  part, through a switching converter or a plain linear regulator, Wi-Fi bursts were audible in the
-  speakers. A separate 5 V / 2 A adapter made it silent.
-- **The DAC is too loud for the PT2258.** The PCM5102A outputs about 2.1 V RMS, more than the PT2258
-  input takes at 5 V. The firmware turns Spotify down by 10 dB before the DAC and the PT2258 attenuates
-  that channel by 78 dB. On the next board revision I would add a resistor divider after the DAC or run
-  the PT2258 from 9 V.
-- **Relay coils disturb I2C.** A write to the volume chip right after a relay switched sometimes arrived
-  garbled, and the amplifier suddenly got very loud. The firmware now writes all volume settings again,
-  twice, just before the speakers connect.
-- **GPIO 5 is a strapping pin.** It is pulled high at power-on, so a relay on it switches on before the
-  firmware even starts. It is fine for the IR receiver, not for relays.
-- **4 MB of flash is tight.** With two firmware slots for Wi-Fi updates there is about 100 KB to spare.
-  Next time: a WROVER-IE with 8 or 16 MB.
+The ESP32 needs its own 5 V power supply. When it shared power with the audio part, through either a
+switching converter or a plain regulator, you could hear Wi-Fi in the speakers as a faint buzz. A
+separate 5 V / 2 A adapter made it silent.
+
+The DAC is too loud for the volume chip. The PCM5102A puts out about 2.1 V, more than the PT2258 can
+take on 5 V, and some sound leaks straight through. For now the firmware turns Spotify down 10 dB before
+the DAC and the volume chip turns that input down another 78 dB. On the next board I'd add two resistors
+after the DAC, or run the volume chip from 9 V.
+
+The relays disturb the wires to the volume chip. A command sent right after a relay clicked sometimes
+arrived garbled, and the amplifier suddenly played very loud. Now the firmware sends all volume
+settings again, twice, just before the speakers connect.
+
+GPIO 5 is a bad pin for a relay. The ESP32 pulls it high while it starts, so anything on it switches on
+before the program runs. The infrared receiver is happy there.
+
+4 MB of flash is tight. With room for two copies of the firmware, needed for updates over Wi-Fi, about
+100 KB is left. Next time I'd use the 8 or 16 MB version of the same module.
 
 ## Building and flashing
 
-You need [ESP-IDF 5.5](https://docs.espressif.com/projects/esp-idf/) in `~/esp/esp-idf`. Everything else
-is handled by the Makefile.
+You need [ESP-IDF 5.5](https://docs.espressif.com/projects/esp-idf/) in `~/esp/esp-idf`. The Makefile
+does the rest.
 
 ```bash
 make            # first run asks for your Wi-Fi, downloads cspot and applies the patches
@@ -110,12 +120,12 @@ make monitor    # serial log
 make wifi       # change the Wi-Fi network stored at build time
 ```
 
-The Wi-Fi name and password live only in `sdkconfig.local`, which is not in the repository. A network
-set through the "CONF" menu takes priority. You can protect `make ota` with a password in `menuconfig`
-(`CONFIG_AUDIO_OTA_HASLO`); by default there is none.
+Your Wi-Fi name and password stay in `sdkconfig.local`, which isn't in the repository. A network set
+from the "CONF" menu wins over it. If you want `make ota` to ask for a password, set
+`CONFIG_AUDIO_OTA_HASLO` in `menuconfig`; there's none by default.
 
 The version number is `PROJECT_VER` in `CMakeLists.txt`. The display shows it for a few seconds after
-start, and it is also in `/api/system`.
+switching on, and it's also in `/api/system`.
 
 ## Under the hood
 
@@ -149,64 +159,72 @@ Code comments are in Polish.
 
 ## License
 
-GPL-3.0 (see `LICENSE`), the same license as cspot, which the firmware is built on.
+GPL-3.0 (see `LICENSE`), the same as cspot, which the Spotify part is built on.
 
 ---
 
-# Audio mini – mały wzmacniacz stereo ze Spotify, na ESP32
+# Audio mini: mały wzmacniacz stereo ze Spotify, na ESP32
 
 ![Audio mini bez pokrywy](docs/audio_mini_wnetrze.jpg)
 
 *Audio mini bez pokrywy: moduł wzmacniacza klasy D z lewej, zasilacz 24 V z prawej, płytka sterownika
 z ESP32 z tyłu, a na panelu przednim wyświetlacz 14-segmentowy i gałka głośności.*
 
-Chciałem prostej rzeczy: biorę telefon, wybieram w Spotify „Audio mini” i muzyka gra z moich kolumn.
-Telewizor i gramofon mają działać dalej, wszystko z jednej gałki i jednego pilota, bez kolejnego pudełka
-z osobną aplikacją.
+Chciałem prostej rzeczy: biorę telefon, wybieram w Spotify „Audio mini” i słyszę muzykę z moich
+kolumn. Telewizor i gramofon miały działać dalej, wszystko z jednej gałki i jednego pilota, bez
+kolejnego pudełka z osobną aplikacją.
 
-Zbudowałem więc mały wzmacniacz, który robi to wszystko. W aluminiowej obudowie jest moduł wzmacniacza
-klasy D (HW-576), zasilacz 24 V i płytka sterownika z tego repozytorium. Sterownik robi trzy rzeczy: jest
-głośnikiem Spotify Connect, przełącza wejścia (Spotify, TV, Phono) przekaźnikami i reguluje głośność
-analogowym układem, więc dźwięk z telewizora i z płyty nie przechodzi przez nic cyfrowego. Gałka, pilot,
-aplikacja Spotify w telefonie i mała strona WWW mają wspólną głośność i wspólny stan. Kręcisz gałką,
-a suwak w telefonie przesuwa się razem z nią.
+Zbudowałem więc mały wzmacniacz, który to robi. W aluminiowej obudowie jest moduł wzmacniacza klasy D
+(HW-576), zasilacz 24 V i płytka sterownika z tego repozytorium. Sterownik gra Spotify, przełącza
+przekaźnikami między Spotify, telewizorem i gramofonem, a głośność ustawia analogowym układem, więc
+dźwięk z telewizora i z płyt nie przechodzi przez nic cyfrowego. Gałka, pilot, aplikacja Spotify i mała
+strona WWW sterują tą samą głośnością. Kręcisz gałką, a suwak w telefonie przesuwa się razem z nią.
 
 Zaczęło się od Raspberry Pi. Działało, ale Pi to cały komputer do pilnowania: karta SD, system,
-aktualizacje i długi start. Wersja na ESP32 startuje w kilka sekund, nie wymaga obsługi i kosztuje
-ułamek ceny.
+aktualizacje i długi start. Wersja na ESP32 jest gotowa kilka sekund po włączeniu, nie trzeba się nią
+opiekować i kosztuje ułamek ceny.
 
-## Jak to działa na co dzień
+## Jak się z tego korzysta
 
-- **Spotify na wzmacniaczu.** „Audio mini” pojawia się w aplikacji Spotify jak każdy głośnik Connect
-  (potrzebne konto Premium). Każdy domownik może się połączyć ze swojego telefonu i konta. Urządzenie
-  pamięta ostatnie logowanie i po zaniku prądu łączy się samo.
-- **Samo się przełącza.** Wciskasz „play” w Spotify i wzmacniacz przechodzi na wejście Spotify.
-  Przełączasz na TV i Spotify samo się pauzuje.
-- **Jedna głośność do wszystkiego.** Gałka, pilot, telefon i strona WWW zmieniają tę samą analogową
-  głośność (PT2258). Przy cichym słuchaniu kroki są drobne, po 1 dB; krzywą można dostroić na stronie.
-- **Bez stuków i huków.** Kolumny mają własny przekaźnik. Dołączają się dopiero wtedy, gdy wszystko ma
-  zasilanie, wybrane jest właściwe wejście, a układ głośności dwa razy potwierdził ustawienia. Tak samo
-  przy każdej zmianie wejścia.
-- **Samo cichnie.** Na wejściu Spotify po 30 sekundach ciszy kolumny się odłączają, a wyświetlacz pokazuje
-  przyciemniony zegar. TV i Phono wyłączają się po 3 godzinach bez dotykania czegokolwiek; przycisk 2
-  albo 3 na pilocie włącza je z powrotem.
-- **Retro wyświetlacz.** Cztery czerwone znaki 14-segmentowe, jak w tunerze z lat 80.: zegar,
-  przewijany tytuł i wykonawca, „V 42” przy kręceniu głośnością, nazwa wejścia. Na TV i Phono mała
-  kropka przy zegarze mówi, które wejście jest włączone.
-- **Pilot.** Tani pilot na podczerwień z 21 przyciskami: głośność, pauza, następny i poprzedni utwór,
-  wejścia 1/2/3, wyciszenie.
-- **Strona WWW.** Na telefonie `http://<adres-urządzenia>:8080`: co gra, z okładką, głośność, wejścia,
-  krzywa głośności i informacje o systemie (sygnał Wi-Fi, bufor audio, wersja).
-- **Ustawienie Wi-Fi bez komputera.** W menu gałki wybierasz „CONF”, łączysz telefon z siecią
-  „Audio mini config”, wybierasz swoją sieć i wpisujesz hasło.
-- **Aktualizacje przez Wi-Fi.** `make ota` kompiluje program i wysyła go do urządzenia. Obudowa zostaje
-  zamknięta.
+„Audio mini” wybierasz w aplikacji Spotify jak każdy inny głośnik Connect (potrzebne jest Premium).
+Każdy domownik może się połączyć ze swojego telefonu i konta. Po zaniku prądu urządzenie pamięta
+ostatnie logowanie i łączy się samo.
+
+Wciskasz „play” w Spotify i wzmacniacz sam przełącza się na Spotify. Przełączasz na telewizor
+i Spotify się pauzuje.
+
+Gałka, pilot, telefon i strona WWW przesuwają tę samą głośność. Przy cichym graniu każdy ząbek gałki to
+mały krok o 1 dB, więc wieczorem łatwo trafić w odpowiedni poziom. Kształt krzywej głośności można
+zmienić na stronie WWW.
+
+Przy włączaniu i zmianie wejścia nie powinno nic stuknąć. Kolumny mają własny przekaźnik i dołączają
+się kilka sekund później, gdy wszystko ma już zasilanie, włączone jest właściwe wejście, a układ
+głośności dwa razy potwierdził ustawienia.
+
+Na Spotify po 30 sekundach ciszy kolumny się odłączają, a wyświetlacz przygasa do zegara. Telewizor
+i gramofon wyłączają się po 3 godzinach, jeśli nikt niczego nie dotyka; przycisk 2 albo 3 na pilocie
+włącza je z powrotem.
+
+Wyświetlacz to cztery czerwone znaki 14-segmentowe, jak w tunerze z lat 80. Pokazuje godzinę,
+przewijany tytuł i wykonawcę, „V 42” przy kręceniu głośnością i nazwę wejścia. Na telewizorze
+i gramofonie mała kropka przy zegarze mówi, które z nich gra.
+
+Pilot to ten tani, na podczerwień, z 21 przyciskami: głośność, pauza, następny i poprzedni utwór,
+wejścia 1, 2 i 3 oraz wyciszenie.
+
+Strona WWW (`http://<adres-urządzenia>:8080`) pokazuje, co gra, razem z okładką, a do tego głośność,
+wejścia, krzywą głośności i kilka liczb o urządzeniu, na przykład siłę Wi-Fi i wersję.
+
+Do zmiany sieci Wi-Fi nie potrzeba komputera: w menu gałki wybierasz „CONF”, łączysz telefon z siecią
+„Audio mini config”, wybierasz swoją sieć i wpisujesz hasło.
+
+Nowy program idzie przez Wi-Fi poleceniem `make ota`, więc obudowa zostaje zamknięta.
 
 ## Sprzęt
 
 | Element | Do czego | Połączenie |
 |---|---|---|
-| ESP32-DevKitC-VIE (ESP32-WROVER-IE, 8 MB PSRAM, antena zewnętrzna) | mózg, Wi-Fi, Spotify | – |
+| ESP32-DevKitC-VIE (ESP32-WROVER-IE, 8 MB PSRAM, antena zewnętrzna) | mózg, Wi-Fi, Spotify | (brak) |
 | moduł DAC PCM5102A | dźwięk Spotify → analog | I2S: BCK 26, LCK 25, DIN 27 |
 | PT2258 | analogowa regulacja głośności | I2C 0x44 (SDA 21, SCL 22) |
 | HT16K33 + 4 × LED 14-seg (0,54") | wyświetlacz | I2C 0x70 |
@@ -216,9 +234,9 @@ ułamek ceny.
 | enkoder EC11 z przyciskiem | głośność i menu | A 32, B 33, przycisk 14 |
 | wolne złącze | na przyszłe pomysły | ZAP3, GPIO 15 |
 
-Projekty KiCad są w `pcb/`: `input_selector` to płyta główna (schemat także w PDF), a `speaker_delay`
-to płytka przekaźnika kolumn. Obrazy to widoki 3D z KiCad; moduły ESP32, DAC i zasilania nie mają
-modeli 3D, więc widać tylko ich obrysy i opisy pinów.
+Pliki KiCad są w `pcb/`: `input_selector` to płyta główna (schemat jest też w PDF), a `speaker_delay`
+to mała płytka przekaźnika kolumn. Obrazki niżej to widoki 3D z KiCad. ESP32, DAC i moduł zasilania nie
+mają modeli 3D, więc widać tylko ich obrysy.
 
 ![Płyta główna, widok 3D z KiCad](docs/input_selector_3d.png)
 
@@ -226,25 +244,30 @@ modeli 3D, więc widać tylko ich obrysy i opisy pinów.
 |---|---|
 | ![Płyta główna, widok z góry](docs/input_selector_gora.png) | ![Płytki przekaźnika kolumn, widok z góry](docs/speaker_delay_gora.png) |
 
-Na płycie głównej u góry są trzy przekaźniki wejść z tranzystorami, układ głośności PT2258 i stabilizatory
-części analogowej. Na dole: moduł DAC PCM5102A (z lewej), ESP32 DevKitC (w środku) i miejsce na
-przetwornicę LM2596 (U4, z prawej), którą później zastąpiłem osobnym zasilaczem 5 V.
+U góry płyty głównej są trzy przekaźniki wejść, układ głośności PT2258 i stabilizatory części audio.
+Na dole: moduł DAC z lewej, ESP32 w środku, a z prawej miejsce na przetwornicę LM2596 (U4), którą
+później zamieniłem na osobny zasilacz 5 V.
 
-### Czego nauczyło mnie uruchamianie
+### Czego się nauczyłem przy budowie
 
-- **Część cyfrową zasilaj z osobnego zasilacza 5 V.** Gdy ESP32 był na wspólnym zasilaniu z częścią
-  audio, przez przetwornicę impulsową albo zwykły stabilizator liniowy, transmisję Wi-Fi było słychać
-  w kolumnach. Osobny zasilacz 5 V / 2 A zrobił ciszę.
-- **DAC jest za głośny dla PT2258.** PCM5102A daje około 2,1 V RMS, więcej niż wejście PT2258 przyjmuje
-  przy 5 V. Program ścisza Spotify o 10 dB przed DAC, a PT2258 tłumi ten kanał o 78 dB. W następnej
-  wersji płytki dałbym dzielnik rezystorowy za DAC albo zasilił PT2258 z 9 V.
-- **Cewki przekaźników zakłócają I2C.** Zapis do układu głośności tuż po przełączeniu przekaźnika
-  dochodził czasem przekłamany i wzmacniacz nagle grał bardzo głośno. Program wpisuje teraz wszystkie
-  ustawienia głośności jeszcze raz, dwukrotnie, tuż przed dołączeniem kolumn.
-- **GPIO 5 to pin konfiguracyjny.** Przy włączaniu ma podciąganie do plusa, więc przekaźnik na nim
-  włącza się, zanim program w ogóle ruszy. Do odbiornika IR się nadaje, do przekaźników nie.
-- **4 MB pamięci flash to mało.** Przy dwóch miejscach na program (aktualizacje przez Wi-Fi) zostaje
-  około 100 KB zapasu. Następnym razem: WROVER-IE z 8 albo 16 MB.
+ESP32 potrzebuje osobnego zasilacza 5 V. Gdy dzielił zasilanie z częścią audio, czy to przez
+przetwornicę, czy przez zwykły stabilizator, Wi-Fi było słychać w kolumnach jako ciche brzęczenie.
+Osobny zasilacz 5 V / 2 A dał ciszę.
+
+DAC jest za głośny dla układu głośności. PCM5102A daje około 2,1 V, więcej niż PT2258 przyjmuje przy
+zasilaniu 5 V, i część dźwięku przecieka obok. Na razie program ścisza Spotify o 10 dB przed DAC,
+a układ głośności to wejście jeszcze o 78 dB. W następnej płytce dałbym dwa rezystory za DAC albo
+zasiliłbym układ głośności z 9 V.
+
+Przekaźniki zakłócają przewody do układu głośności. Polecenie wysłane tuż po kliknięciu przekaźnika
+dochodziło czasem przekłamane i wzmacniacz nagle grał bardzo głośno. Teraz program wysyła wszystkie
+ustawienia głośności jeszcze raz, dwa razy, tuż przed dołączeniem kolumn.
+
+GPIO 5 to zły pin na przekaźnik. ESP32 przy starcie ustawia na nim stan wysoki, więc to, co jest do
+niego podłączone, włącza się, zanim ruszy program. Odbiornikowi podczerwieni to nie przeszkadza.
+
+4 MB pamięci flash to mało. Przy miejscu na dwie kopie programu, potrzebnym do aktualizacji przez
+Wi-Fi, zostaje około 100 KB. Następnym razem wziąłbym ten sam moduł w wersji z 8 albo 16 MB.
 
 ## Kompilacja i wgrywanie
 
@@ -259,12 +282,12 @@ make monitor    # komunikaty z ESP32
 make wifi       # zmiana sieci Wi-Fi zapisanej przy kompilacji
 ```
 
-Nazwa sieci i hasło są tylko w `sdkconfig.local`, którego nie ma w repozytorium. Sieć ustawiona przez
-menu „CONF” ma pierwszeństwo. `make ota` można zabezpieczyć hasłem w `menuconfig`
-(`CONFIG_AUDIO_OTA_HASLO`); domyślnie hasła nie ma.
+Nazwa Twojej sieci i hasło zostają w `sdkconfig.local`, którego nie ma w repozytorium. Sieć ustawiona
+z menu „CONF” ma przed nią pierwszeństwo. Jeśli chcesz, żeby `make ota` pytało o hasło, ustaw
+`CONFIG_AUDIO_OTA_HASLO` w `menuconfig`; domyślnie hasła nie ma.
 
-Numer wersji to `PROJECT_VER` w `CMakeLists.txt`. Wyświetlacz pokazuje go przez kilka sekund po starcie,
-jest też w `/api/system`.
+Numer wersji to `PROJECT_VER` w `CMakeLists.txt`. Wyświetlacz pokazuje go przez kilka sekund po
+włączeniu, jest też w `/api/system`.
 
 ## Pod spodem
 
@@ -298,4 +321,4 @@ Komentarze w kodzie są po polsku.
 
 ## Licencja
 
-GPL-3.0 (plik `LICENSE`), ta sama licencja co cspot, na którym opiera się program.
+GPL-3.0 (plik `LICENSE`), tak samo jak cspot, na którym opiera się część od Spotify.
