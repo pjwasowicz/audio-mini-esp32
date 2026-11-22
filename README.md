@@ -81,7 +81,7 @@ Numer wersji: `PROJECT_VER` w `CMakeLists.txt` (pokazywany po starcie na wyświe
 
 ## Licencja
 
-cspot jest na licencji GPL-3.0, więc program, który go używa, też podlega GPL-3.0.
+GPL-3.0 (plik `LICENSE`) – cspot, na którym opiera się program, jest na tej samej licencji.
 
 ---
 
