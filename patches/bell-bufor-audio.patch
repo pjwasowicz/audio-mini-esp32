@@ -1,0 +1,29 @@
+diff --git a/main/audio-dsp/BellDSP.cpp b/main/audio-dsp/BellDSP.cpp
+index ff43f85..6295884 100644
+--- a/main/audio-dsp/BellDSP.cpp
++++ b/main/audio-dsp/BellDSP.cpp
+@@ -23,7 +23,8 @@ void BellDSP::FadeEffect::apply(float* audioData, size_t samples,
+     effect = relativePosition / (float)this->duration;
+   }
+ 
+-  for (int x = 0; x <= samples; x++) {
++  // < zamiast <=: przy pełnej porcji (1024 próbki) pisało jedną próbkę za tablicą dataLeft/dataRight
++  for (size_t x = 0; x < samples; x++) {
+     audioData[x] *= effect;
+   }
+ 
+diff --git a/main/audio-dsp/include/CentralAudioBuffer.h b/main/audio-dsp/include/CentralAudioBuffer.h
+index bd4f7ab..721b7ab 100644
+--- a/main/audio-dsp/include/CentralAudioBuffer.h
++++ b/main/audio-dsp/include/CentralAudioBuffer.h
+@@ -131,7 +131,9 @@ class CentralAudioBuffer {
+     if (hasChunk && (currentChunk.trackHash != hash ||
+                      currentChunk.pcmSize >= PCM_CHUNK_SIZE)) {
+ 
+-      if ((audioBuffer->size() - audioBuffer->capacity()) <
++      // wolne miejsce = capacity - size (odwrotnie daje ogromną liczbę bez znaku: bufor nigdy „pełny”,
++      // zapis porcji ucięty, dalsze odczyty przesunięte i pcmSize z danych dźwięku)
++      if ((audioBuffer->capacity() - audioBuffer->size()) <
+           sizeof(AudioChunk)) {
+         return 0;
+       }

@@ -1,0 +1,27 @@
+# kompilacja i pliki generowane
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+dependencies.lock
+*.log
+
+# hasło Wi-Fi i nazwa sieci – tylko lokalnie
+sdkconfig.local
+
+# cspot pobiera setup.sh (git clone) i nakłada łatki z patches/
+cspot/
+
+# próby i stare wersje, niepotrzebne do zbudowania
+test_wifi/
+micropython/
+stare/
+boards/
+
+# KiCad: kopie zapasowe, pamięć podręczna i ustawienia lokalne
+*-backups/
+fp-info-cache
+*.kicad_prl
+*.lck
+\#auto_saved_files#
+.DS_Store

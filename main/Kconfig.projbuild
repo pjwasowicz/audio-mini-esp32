@@ -1,0 +1,62 @@
+menu "Audio mini (ESP32)"
+
+    config AUDIO_DEVICE_NAME
+        string "Nazwa urządzenia w Spotify"
+        default "Audio mini"
+
+    config AUDIO_HOSTNAME
+        string "Nazwa w sieci (mDNS, bez .local)"
+        default "audio-mini"
+
+    config AUDIO_OTA_HASLO
+        string "Hasło do wgrywania programu przez Wi-Fi (puste = bez hasła)"
+        default ""
+
+    config AUDIO_WIFI_SSID
+        string "Sieć Wi-Fi (SSID)"
+        default ""
+
+    config AUDIO_WIFI_PASSWORD
+        string "Hasło Wi-Fi"
+        default ""
+
+    menu "Piny (płytka input_selector)"
+        config PIN_I2S_BCK
+            int "I2S BCK -> PCM5102A BCK"
+            default 26
+        config PIN_I2S_LRCK
+            int "I2S LRCK -> PCM5102A LCK"
+            default 25
+        config PIN_I2S_DIN
+            int "I2S dane -> PCM5102A DIN"
+            default 27
+        config PIN_I2C_SDA
+            int "I2C SDA (PT2258, OLED)"
+            default 21
+        config PIN_I2C_SCL
+            int "I2C SCL (PT2258, OLED)"
+            default 22
+        config PIN_T1
+            int "Przekaźnik K1 (wejście 1, Spotify)"
+            default 19
+        config PIN_T2
+            int "Przekaźnik K2 (wejście 2)"
+            default 18
+        config PIN_T3
+            int "Przekaźnik K3 (wejście 3)"
+            default 23
+        config PIN_ENC_A
+            int "Impulsator A"
+            default 32
+        config PIN_ENC_B
+            int "Impulsator B"
+            default 33
+        config PIN_ENC_SW
+            int "Impulsator przycisk"
+            default 14
+        config ENC_KIERUNEK
+            int "Kierunek gałki (1 albo -1)"
+            default -1
+    endmenu
+
+endmenu

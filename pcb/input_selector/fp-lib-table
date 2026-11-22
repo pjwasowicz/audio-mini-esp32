@@ -1,0 +1,8 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "relay_lib")(type "KiCad")(uri "${KIPRJMOD}/relay_lib.pretty")(options "")(descr ""))
+  (lib (name "audio_big")(type "KiCad")(uri "${KIPRJMOD}/audio_big.pretty")(options "")(descr "DIP-20 z dużymi padami"))
+  (lib (name "_BIGPAD")(type "KiCad")(uri "${KIPRJMOD}/_BIGPAD.pretty")(options "")(descr "duże pady"))
+  (lib (name "esp32")(type "KiCad")(uri "${KIPRJMOD}/esp32.pretty")(options "")(descr "ESP32-DevKitC, PCM5102A"))
+  (lib (name "LM2596_CC_CV_Module")(type "KiCad")(uri "${KIPRJMOD}/LM2596_CC_CV_Module.pretty")(options "")(descr "Przetwornica LM2596 CC/CV"))
+)

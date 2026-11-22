@@ -1,0 +1,6 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "audio")(type "KiCad")(uri "${KIPRJMOD}/audio.kicad_sym")(options "")(descr "PT2258"))
+  (lib (name "esp32")(type "KiCad")(uri "${KIPRJMOD}/esp32.kicad_sym")(options "")(descr "ESP32-DevKitC, PCM5102A"))
+  (lib (name "LM2596")(type "KiCad")(uri "${KIPRJMOD}/LM2596_CC_CV_Module.kicad_sym")(options "")(descr "Przetwornica LM2596 CC/CV"))
+)

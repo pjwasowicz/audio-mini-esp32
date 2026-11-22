@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#111318">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Audio mini">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231db954'/%3E%3Cpath d='M38 28v44l34-22z' fill='%23000'/%3E%3C/svg%3E">
+<title>Audio mini</title>
+<style>
+  :root { --tlo:#111318; --karta:#1c1f27; --tekst:#e8e8ee; --szary:#8b8f9c; --akcent:#1db954; --przycisk:#2a2e3a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--tlo); color:var(--tekst); font:16px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;
+         -webkit-user-select:none; user-select:none; }
+  main { max-width:520px; margin:0 auto; padding:max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+  h1 { font-size:18px; font-weight:600; margin:4px 0 16px; color:var(--szary); display:flex; justify-content:space-between; gap:8px; }
+  .karta { background:var(--karta); border-radius:16px; padding:16px; margin-bottom:12px; }
+  .okladka { width:100%; aspect-ratio:1; border-radius:12px; background:var(--przycisk); object-fit:cover; display:block; margin-bottom:14px; }
+  .tytul { font-size:20px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wyk { color:var(--szary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .kontekst { font-size:12px; color:var(--szary); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pasek { height:22px; display:flex; align-items:center; margin:10px 0 0; cursor:pointer; }
+  .pasek > div { flex:1; height:5px; background:var(--przycisk); border-radius:3px; overflow:hidden; }
+  .pasek > div > div { height:100%; background:var(--akcent); width:0; }
+  .czas { display:flex; justify-content:space-between; font-size:12px; color:var(--szary); }
+  .przyciski { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+  button { border:0; border-radius:50%; width:60px; height:60px; font-size:24px; background:var(--przycisk); color:var(--tekst);
+           cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; touch-action:manipulation; }
+  button.glowny { width:80px; height:80px; background:var(--akcent); color:#000; font-size:32px; }
+  button.maly { width:44px; height:44px; background:transparent; }
+  button svg { width:26px; height:26px; fill:currentColor; display:block; }
+  button.glowny svg { width:34px; height:34px; }
+  button.maly svg { width:22px; height:22px; }
+  .glosnosc button svg { width:22px; height:22px; }
+  button.maly { color:var(--szary); opacity:1; }
+  button.maly.wl { color:var(--akcent); }
+  button:active { transform:scale(.93); }
+  .glos-gora { display:flex; justify-content:space-between; align-items:baseline; color:var(--szary); font-size:14px; }
+  .glosv { font-size:22px; font-weight:600; color:var(--tekst); font-variant-numeric:tabular-nums; }
+  .glos-dol { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .glos-pm { display:flex; gap:12px; }
+  .glosnosc button { width:52px; height:52px; flex:none; }
+  /* suwak na całą szerokość, gruby pasek i duży uchwyt pod palec */
+  input[type=range] { -webkit-appearance:none; appearance:none; display:block; width:100%; height:44px; margin:4px 0;
+                      background:transparent; touch-action:pan-y; --p:0%; }
+  input[type=range]::-webkit-slider-runnable-track { height:10px; border-radius:5px;
+      background:linear-gradient(to right, var(--akcent) var(--p), var(--przycisk) var(--p)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; margin-top:-9px; border-radius:50%;
+      background:#fff; box-shadow:0 1px 4px #0008; }
+  input[type=range]::-moz-range-track { height:10px; border-radius:5px; background:var(--przycisk); }
+  input[type=range]::-moz-range-progress { height:10px; border-radius:5px; background:var(--akcent); }
+  input[type=range]::-moz-range-thumb { width:28px; height:28px; border:0; border-radius:50%; background:#fff; }
+  .sys { font-size:13px; color:var(--szary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
+  .sys button { width:auto; height:auto; border-radius:8px; padding:6px 10px; font-size:13px; }
+  .offline { color:#ff6b6b; }
+  .wejscia { display:flex; gap:8px; padding:8px; }
+  .wejscia button { flex:1; width:auto; height:48px; border-radius:12px; font-size:16px; font-weight:600; color:var(--szary); }
+  .wejscia button.wl { background:var(--akcent); color:#000; }
+  .wejscia.brak button { opacity:.4; }
+  .strojenie summary { cursor:pointer; font-weight:600; }
+  .strojenie .wiersz { display:flex; justify-content:space-between; margin-top:12px; color:var(--szary); }
+  @media (min-width:600px) { .okladka { width:200px; margin:0 auto 14px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1><span>Audio mini</span><span id="stan"></span></h1>
+
+  <div class="karta wejscia" id="wejscia" title="Wejście wzmacniacza (przekaźniki)"></div>
+
+  <div class="karta">
+    <img id="okladka" class="okladka" alt="">
+    <div id="tytul" class="tytul">–</div>
+    <div id="wykonawca" class="wyk"></div>
+    <div id="kontekst" class="kontekst"></div>
+    <div class="pasek" id="pasek" ><div><div id="postep"></div></div></div>
+    <div class="czas"><span id="poz">0:00</span><span id="dlug">0:00</span></div>
+    <div class="przyciski">
+      <button id="losowo" class="maly" style="visibility:hidden" onclick="przelacz('shuffle_context')" title="Losowo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3.5c1.6 0 3 .8 3.9 2.1l2.2 3.3c.6.9 1.5 1.4 2.6 1.4H18M4 17h3.5c1.6 0 3-.8 3.9-2.1l.3-.4M14 9.6l.3-.4c.6-.9 1.5-1.4 2.6-1.4H18M16 4.5 19 7.5l-3 3M16 13.5l3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button onclick="akcja('prev')" title="Poprzedni (←)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9.5 12z"/></svg></button>
+      <button id="pp" class="glowny" onclick="akcja('playpause')" title="Odtwarzaj/pauza (spacja)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <button onclick="akcja('next')" title="Następny (→)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l10.5-7z"/></svg></button>
+      <button id="powtorz" class="maly" style="visibility:hidden" onclick="przelacz('repeat_context')" title="Powtarzaj"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11V9a3 3 0 0 1 3-3h11M16 3l3 3-3 3M19 13v2a3 3 0 0 1-3 3H5M8 21l-3-3 3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+
+  <div class="karta glosnosc">
+    <div class="glos-gora"><span>Głośność</span><span id="glosv" class="glosv">0</span></div>
+    <input id="glos" type="range" min="0" max="100" value="0" oninput="pokazGlos(this.value)" onchange="ustawGlos(this.value)">
+    <div class="glos-dol">
+      <button id="wycisz" onclick="wycisz()" title="Wycisz (M)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <div class="glos-pm">
+        <button onclick="zmienGlos(-5)" title="Ciszej (↓)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+        <button onclick="zmienGlos(5)" title="Głośniej (↑)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <details class="karta strojenie">
+    <summary>Strojenie</summary>
+    <div id="strojenie"></div>
+  </details>
+
+  <div class="karta sys">
+    <span id="sysinfo">…</span>
+  </div>
+</main>
+<script>
+const IK = {play: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`, pause: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>`, glos: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`, cisza: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`};
+let kroki = 100, przeciagam = false, ostatni = null, tPobrania = 0, przedWyciszeniem = 30, glosTimer = null;
+const $ = id => document.getElementById(id);
+
+function mmss(ms) { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+async function akcja(co, dane) {
+  try { await fetch('/api/player/' + co, { method: 'POST', body: dane ? JSON.stringify(dane) : null }); } catch (e) {}
+  setTimeout(odswiez, 300);
+}
+function przelacz(co) {
+  if (!ostatni) return;
+  akcja(co, { [co]: !ostatni[co] });
+}
+
+// głośność w procentach: PT2258 z programu gałki (glosPT), a gdy go brak – go-librespot
+let glosPT = null;
+function procent() {
+  if (glosPT !== null) return glosPT;
+  return ostatni ? Math.round(ostatni.volume * 100 / kroki) : 0;
+}
+function pokazProcent() {
+  if (przeciagam) return;
+  const v = procent(); $('glos').value = v; $('glos').style.setProperty('--p', v + '%'); $('glosv').textContent = v;
+  $('wycisz').innerHTML = v ? IK.glos : IK.cisza;
+}
+function pokazGlos(v) {
+  przeciagam = true;
+  $('glosv').textContent = v;
+  $('glos').style.setProperty('--p', v + '%');
+  $('wycisz').innerHTML = v == 0 ? IK.cisza : IK.glos;
+}
+function ustawGlos(v) {
+  v = Math.max(0, Math.min(100, Math.round(v)));
+  pokazGlos(v); $('glos').value = v;
+  // kilka szybkich kliknięć „+”/„−” wysyła jedno polecenie
+  clearTimeout(glosTimer);
+  if (glosPT !== null) {
+    glosPT = v;
+    glosTimer = setTimeout(async () => {
+      try { await fetch('/api/glosnosc', { method: 'POST', body: JSON.stringify({ glosnosc: v }) }); } catch (e) {}
+      setTimeout(() => { przeciagam = false; }, 800);   // aż program gałki zapisze nowy stan
+    }, 150);
+  } else {
+    if (ostatni) ostatni.volume = Math.round(v * kroki / 100);
+    glosTimer = setTimeout(() => { przeciagam = false; akcja('volume', { volume: Math.round(v * kroki / 100) }); }, 150);
+  }
+}
+function zmienGlos(d) { ustawGlos(+$('glos').value + d); }
+function wycisz() {
+  const v = +$('glos').value;
+  if (v > 0) { przedWyciszeniem = v; ustawGlos(0); } else ustawGlos(przedWyciszeniem || 30);
+}
+
+document.addEventListener('keydown', e => {
+  const k = { ' ': () => akcja('playpause'), ArrowLeft: () => akcja('prev'), ArrowRight: () => akcja('next'),
+              ArrowUp: () => zmienGlos(5), ArrowDown: () => zmienGlos(-5), m: wycisz, M: wycisz }[e.key];
+  if (k) { e.preventDefault(); k(); }
+});
+
+
+async function odswiez() {
+  try {
+    const r = await fetch('/api/status'); if (!r.ok) throw new Error(r.status);
+    const s = await r.json(); ostatni = s; tPobrania = Date.now();
+    kroki = s.volume_steps || 100;
+    $('stan').textContent = s.stopped ? 'zatrzymany' : (s.paused ? 'pauza' : 'gra');
+    $('stan').className = '';
+    $('pp').innerHTML = (s.paused || s.stopped) ? IK.play : IK.pause;
+    $('losowo').classList.toggle('wl', !!s.shuffle_context);
+    $('powtorz').classList.toggle('wl', !!s.repeat_context);
+    const t = s.track;
+    $('tytul').textContent = t ? t.name : '–';
+    $('wykonawca').textContent = t ? (t.artist_names || []).join(', ') + (t.album_name ? ' · ' + t.album_name : '') : '';
+    $('kontekst').textContent = s.context_name || '';
+    document.title = t ? t.name + ' – Audio mini' : 'Audio mini';
+    const ok = $('okladka');
+    if (t && t.album_cover_url) { if (ok.src !== t.album_cover_url) ok.src = t.album_cover_url; } else ok.removeAttribute('src');
+    pokazProcent();
+    rysujPostep();
+  } catch (e) {
+    $('stan').textContent = 'brak połączenia';
+    $('stan').className = 'offline';
+  }
+}
+function rysujPostep() {
+  const s = ostatni; if (!s || !s.track) return;
+  let poz = s.track.position || 0;
+  if (!s.paused && !s.stopped) poz += Date.now() - tPobrania;
+  const d = s.track.duration || 1;
+  poz = Math.min(poz, d);
+  $('postep').style.width = poz * 100 / d + '%';
+  $('poz').textContent = mmss(poz);
+  $('dlug').textContent = mmss(d);
+}
+async function sysinfo() {
+  try {
+    const i = await (await fetch('/api/system')).json();
+    let reset = '';
+    try { const r = (await (await fetch('/api/resety')).json())[0]; if (r) reset = ` · ostatni reset: ${r.przyczyna}${r.powod ? ' – ' + r.powod : ''}`; } catch (e) {}
+    const h = Math.floor(i.uptime_s / 3600), m = Math.floor(i.uptime_s % 3600 / 60);
+    $('sysinfo').textContent = `wersja ${i.wersja || '?'} · Wi-Fi ${i.rssi} dBm · pamięć ${Math.round(i.heap / 1024)} kB + ${Math.round(i.psram / 1024)} kB · działa ${h} h ${m} min · Spotify: ${i.spotify ? 'połączony' : 'czeka'}${i.pt2258 ? '' : ' · PT2258 nie odpowiada'}${i.wyswietlacz ? '' : ' · wyświetlacz nie odpowiada'}${reset}`;
+  } catch (e) {}
+}
+// po powrocie do karty albo aplikacji od razu świeży stan
+// wejścia: przekaźnikami steruje program gałki (enkoder.py), strona tylko wysyła polecenie i pokazuje stan
+let wejscie = null;
+async function wejscia() {
+  const box = $('wejscia');
+  try {
+    const r = await fetch('/api/wejscie'); if (!r.ok) throw new Error(r.status);
+    const m = await r.json();
+    if (box.children.length !== m.nazwy.length)
+      box.innerHTML = m.nazwy.map((n, i) => `<button onclick="ustawWejscie(${i})">${n}</button>`).join('');
+    [...box.children].forEach((b, i) => b.classList.toggle('wl', i === m.wejscie));
+    wejscie = m.wejscie;
+    glosPT = typeof m.glosnosc === 'number' ? m.glosnosc : null;
+    pokazProcent();
+    box.classList.remove('brak');
+  } catch (e) { box.classList.add('brak'); }
+}
+async function ustawWejscie(i) {
+  if (i === wejscie) return;
+  [...$('wejscia').children].forEach((b, j) => b.classList.toggle('wl', j === i));
+  await fetch('/api/wejscie', { method: 'POST', body: JSON.stringify({ wejscie: i }) });
+  setTimeout(() => { wejscia(); odswiez(); }, 600);
+}
+// strojenie: kolano krzywej głośności
+async function strojenie() {
+  try {
+    const s = await (await fetch('/api/strojenie')).json();
+    const suwak = (id, etykieta, v, min, max, opis) =>
+      `<div class="wiersz"><span>${etykieta}</span><span id="${id}v">${opis(v)}</span></div>` +
+      `<input type="range" id="${id}" min="${min}" max="${max}" value="${v}" style="--p:${(v - min) * 100 / (max - min)}%"` +
+      ` oninput="$('${id}v').textContent=(${opis})(+this.value);this.style.setProperty('--p',(this.value-${min})*100/${max - min}+'%')"` +
+      ` onchange="zapiszStrojenie()">`;
+    $('strojenie').innerHTML = suwak('kolano', 'Krzywa: 60 % głośności', s.kolano, 20, 55, v => `−${v} dB`);
+  } catch (e) {}
+}
+async function zapiszStrojenie() {
+  const dane = { kolano: +$('kolano').value };
+  try { await fetch('/api/strojenie', { method: 'POST', body: JSON.stringify(dane) }); } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { odswiez(); sysinfo(); wejscia(); } });
+odswiez(); sysinfo(); wejscia(); strojenie();
+setInterval(() => { if (!document.hidden) { odswiez(); wejscia(); } }, 3000);
+setInterval(rysujPostep, 500); setInterval(sysinfo, 30000);
+</script>
+</body>
+</html>

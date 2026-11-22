@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "_BIGPAD")(type "KiCad")(uri "${KIPRJMOD}/../input_selector/_BIGPAD.pretty")(options "")(descr "duże pady"))
+  (lib (name "relay_lib")(type "KiCad")(uri "${KIPRJMOD}/../input_selector/relay_lib.pretty")(options "")(descr ""))
+)

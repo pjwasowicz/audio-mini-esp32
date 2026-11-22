@@ -1,0 +1,188 @@
+diff --git a/cspot/include/MercurySession.h b/cspot/include/MercurySession.h
+index 91f05f5..4e5fe2c 100644
+--- a/cspot/include/MercurySession.h
++++ b/cspot/include/MercurySession.h
+@@ -123,6 +123,8 @@ class MercurySession : public bell::Task, public cspot::Session {
+   std::string countryCode = "";
+ 
+   std::mutex isRunningMutex;
++  // mapy odpowiedzi i wspólny nagłówek: execute/requestAudioKey wołane z kilku wątków (odtwarzacz, cspot)
++  std::mutex mapyMutex;
+   std::atomic<bool> isRunning = false;
+   std::atomic<bool> isReconnecting = false;
+   std::atomic<bool> executeEstabilishedCallback = false;
+diff --git a/cspot/src/MercurySession.cpp b/cspot/src/MercurySession.cpp
+index 7aafbb7..1746263 100644
+--- a/cspot/src/MercurySession.cpp
++++ b/cspot/src/MercurySession.cpp
+@@ -22,7 +22,7 @@
+ using namespace cspot;
+ 
+ MercurySession::MercurySession(std::shared_ptr<TimeProvider> timeProvider)
+-    : bell::Task("mercury_dispatcher", 4 * 1024, 3, 1) {
++    : bell::Task("mercury_dispatcher", 16 * 1024, 3, 1) {
+   this->timeProvider = timeProvider;
+ }
+ 
+@@ -35,6 +35,8 @@ void MercurySession::runTask() {
+   std::scoped_lock lock(this->isRunningMutex);
+ 
+   this->executeEstabilishedCallback = true;
++  // bez tego lastPingTimestamp = -1 do pierwszego pingu (do 2 min) i każdy timeout odczytu wymusza reconnect
++  this->lastPingTimestamp = timeProvider->getSyncedTimestamp();
+   while (isRunning) {
+     cspot::Packet packet = {};
+     try {
+@@ -109,6 +111,7 @@ bool MercurySession::triggerTimeout() {
+ }
+ 
+ void MercurySession::unregister(uint64_t sequenceId) {
++  std::scoped_lock lock(mapyMutex);
+   auto callback = this->callbacks.find(sequenceId);
+ 
+   if (callback != this->callbacks.end()) {
+@@ -117,6 +120,7 @@ void MercurySession::unregister(uint64_t sequenceId) {
+ }
+ 
+ void MercurySession::unregisterAudioKey(uint32_t sequenceId) {
++  std::scoped_lock lock(mapyMutex);
+   auto callback = this->audioKeyCallbacks.find(sequenceId);
+ 
+   if (callback != this->audioKeyCallbacks.end()) {
+@@ -160,10 +164,16 @@ void MercurySession::handlePacket() {
+       // First four bytes mark the sequence id
+       auto seqId = ntohl(extract<uint32_t>(packet.data, 0));
+ 
+-      if (this->audioKeyCallbacks.count(seqId) > 0) {
++      AudioKeyCallback cb = nullptr;
++      {
++        std::scoped_lock lock(mapyMutex);
++        auto it = this->audioKeyCallbacks.find(seqId);
++        if (it != this->audioKeyCallbacks.end()) cb = it->second;
++      }
++      if (cb) {
+         auto success = static_cast<RequestType>(packet.command) ==
+                        RequestType::AUDIO_KEY_SUCCESS_RESPONSE;
+-        this->audioKeyCallbacks[seqId](success, packet.data);
++        cb(success, packet.data);
+       }
+ 
+       break;
+@@ -174,20 +184,29 @@ void MercurySession::handlePacket() {
+       CSPOT_LOG(debug, "Received mercury packet");
+ 
+       auto response = this->decodeResponse(packet.data);
+-      if (this->callbacks.count(response.sequenceId) > 0) {
+-        auto seqId = response.sequenceId;
+-        this->callbacks[response.sequenceId](response);
+-        this->callbacks.erase(this->callbacks.find(seqId));
++      ResponseCallback cb = nullptr;
++      {
++        std::scoped_lock lock(mapyMutex);
++        auto it = this->callbacks.find(response.sequenceId);
++        if (it != this->callbacks.end()) {
++          cb = std::move(it->second);
++          this->callbacks.erase(it);
++        }
+       }
++      if (cb) cb(response);
+       break;
+     }
+     case RequestType::SUBRES: {
+       auto response = decodeResponse(packet.data);
+ 
+       auto uri = std::string(response.mercuryHeader.uri);
+-      if (this->subscriptions.count(uri) > 0) {
+-        this->subscriptions[uri](response);
++      ResponseCallback cb = nullptr;
++      {
++        std::scoped_lock lock(mapyMutex);
++        auto it = this->subscriptions.find(uri);
++        if (it != this->subscriptions.end()) cb = it->second;
+       }
++      if (cb) cb(response);
+       break;
+     }
+     default:
+@@ -199,19 +218,24 @@ void MercurySession::failAllPending() {
+   Response response = {};
+   response.fail = true;
+ 
++  // mapy przejęte pod blokadą, odpowiedzi wywołane już bez niej
++  std::unordered_map<uint64_t, ResponseCallback> cbs;
++  std::unordered_map<std::string, ResponseCallback> subs;
++  {
++    std::scoped_lock lock(mapyMutex);
++    cbs.swap(this->callbacks);
++    subs.swap(this->subscriptions);
++  }
++
+   // Fail all callbacks
+-  for (auto& it : this->callbacks) {
++  for (auto& it : cbs) {
+     it.second(response);
+   }
+ 
+   // Fail all subscriptions
+-  for (auto& it : this->subscriptions) {
++  for (auto& it : subs) {
+     it.second(response);
+   }
+-
+-  // Remove references
+-  this->subscriptions = {};
+-  this->callbacks = {};
+ }
+ 
+ MercurySession::Response MercurySession::decodeResponse(
+@@ -251,6 +275,9 @@ uint64_t MercurySession::executeSubscription(RequestType method,
+   CSPOT_LOG(debug, "Executing Mercury Request, type %s",
+             RequestTypeMap[method].c_str());
+ 
++  // nagłówek, mapy i numer sekwencji pod blokadą; samo wysłanie już bez niej
++  std::unique_lock lock(mapyMutex);
++
+   // Encode header
+   pbPutString(uri, tempMercuryHeader.uri);
+   pbPutString(RequestTypeMap[method], tempMercuryHeader.method);
+@@ -304,6 +331,8 @@ uint64_t MercurySession::executeSubscription(RequestType method,
+ 
+   // Bump sequence id
+   this->sequenceId += 1;
++  uint64_t seq = this->sequenceId - 1;
++  lock.unlock();
+ 
+   try {
+     this->shanConn->sendPacket(
+@@ -313,13 +342,14 @@ uint64_t MercurySession::executeSubscription(RequestType method,
+     // @TODO: handle disconnect
+   }
+ 
+-  return this->sequenceId - 1;
++  return seq;
+ }
+ 
+ uint32_t MercurySession::requestAudioKey(const std::vector<uint8_t>& trackId,
+                                          const std::vector<uint8_t>& fileId,
+                                          AudioKeyCallback audioCallback) {
+   auto buffer = fileId;
++  std::unique_lock lock(mapyMutex);
+ 
+   // Store callback
+   this->audioKeyCallbacks.insert({this->audioKeySequence, audioCallback});
+@@ -334,6 +364,8 @@ uint32_t MercurySession::requestAudioKey(const std::vector<uint8_t>& trackId,
+ 
+   // Bump audio key sequence
+   this->audioKeySequence += 1;
++  uint32_t seq = audioKeySequence - 1;
++  lock.unlock();
+ 
+   // Used for broken connection detection
+   // this->lastRequestTimestamp = timeProvider->getSyncedTimestamp();
+@@ -343,5 +375,5 @@ uint32_t MercurySession::requestAudioKey(const std::vector<uint8_t>& trackId,
+   } catch (...) {
+     // @TODO: Handle disconnect
+   }
+-  return audioKeySequence - 1;
++  return seq;
+ }
