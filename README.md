@@ -135,8 +135,8 @@ ESP32, the DAC and the power module have no 3D models, so you only see their out
 |---|---|
 | ![Main board, top view](docs/input_selector_gora.png) | ![Speaker relay boards, top view](docs/speaker_delay_gora.png) |
 
-Along the top of the main board are the three input relays, the PT2258 volume chip and the regulators
-for the audio part. Along the bottom: the DAC module on the left, the ESP32 in the middle, and on the
+Along the top of the main board are the three input relays, the PT2258 volume chip and two regulators
+that make 9 V for the volume chip and 12 V for the relays from the amplifier's 24 V. Along the bottom: the DAC module on the left, the ESP32 in the middle, and on the
 right the spot for an LM2596 converter (U4), which I later swapped for a separate 5 V adapter.
 
 ### What I learned building it
@@ -145,10 +145,11 @@ The ESP32 needs its own 5 V power supply. When it shared power with the audio pa
 switching converter or a plain regulator, you could hear Wi-Fi in the speakers as a faint buzz. A
 separate 5 V / 2 A adapter made it silent.
 
-The DAC is too loud for the volume chip. The PCM5102A puts out about 2.1 V, more than the PT2258 can
-take on 5 V, and some sound leaks straight through. For now the firmware turns Spotify down 10 dB before
-the DAC and the volume chip turns that input down another 78 dB. On the next board I'd add two resistors
-after the DAC, or run the volume chip from 9 V.
+The DAC is much louder than the other inputs. The PCM5102A puts out about 2.1 V, several times more
+than a TV or a turntable preamp, and Spotify came through far too loud even with the volume chip's
+input turned well down. For now the firmware turns Spotify down 10 dB before the DAC and the volume chip
+turns that input down another 78 dB. On the next board I'd put two resistors after the DAC to bring it
+down to the level of the other inputs.
 
 The relays disturb the wires to the volume chip. A command sent right after a relay clicked sometimes
 arrived garbled, and the amplifier suddenly played very loud. Now the firmware sends all volume
@@ -370,7 +371,8 @@ mają modeli 3D, więc widać tylko ich obrysy.
 |---|---|
 | ![Płyta główna, widok z góry](docs/input_selector_gora.png) | ![Płytki przekaźnika kolumn, widok z góry](docs/speaker_delay_gora.png) |
 
-U góry płyty głównej są trzy przekaźniki wejść, układ głośności PT2258 i stabilizatory części audio.
+U góry płyty głównej są trzy przekaźniki wejść, układ głośności PT2258 i dwa stabilizatory, które
+z 24 V wzmacniacza robią 9 V dla układu głośności i 12 V dla przekaźników.
 Na dole: moduł DAC z lewej, ESP32 w środku, a z prawej miejsce na przetwornicę LM2596 (U4), którą
 później zamieniłem na osobny zasilacz 5 V.
 
@@ -380,10 +382,11 @@ ESP32 potrzebuje osobnego zasilacza 5 V. Gdy dzielił zasilanie z częścią aud
 przetwornicę, czy przez zwykły stabilizator, Wi-Fi było słychać w kolumnach jako ciche brzęczenie.
 Osobny zasilacz 5 V / 2 A dał ciszę.
 
-DAC jest za głośny dla układu głośności. PCM5102A daje około 2,1 V, więcej niż PT2258 przyjmuje przy
-zasilaniu 5 V, i część dźwięku przecieka obok. Na razie program ścisza Spotify o 10 dB przed DAC,
-a układ głośności to wejście jeszcze o 78 dB. W następnej płytce dałbym dwa rezystory za DAC albo
-zasiliłbym układ głośności z 9 V.
+DAC jest dużo głośniejszy od pozostałych wejść. PCM5102A daje około 2,1 V, kilka razy więcej niż
+telewizor czy przedwzmacniacz gramofonowy, i Spotify grało o wiele za głośno, nawet przy mocno
+ściszonym wejściu w układzie głośności. Na razie program ścisza Spotify o 10 dB przed DAC, a układ
+głośności to wejście jeszcze o 78 dB. W następnej płytce dałbym dwa rezystory za DAC, żeby sprowadzić
+go do poziomu pozostałych wejść.
 
 Przekaźniki zakłócają przewody do układu głośności. Polecenie wysłane tuż po kliknięciu przekaźnika
 dochodziło czasem przekłamane i wzmacniacz nagle grał bardzo głośno. Teraz program wysyła wszystkie
