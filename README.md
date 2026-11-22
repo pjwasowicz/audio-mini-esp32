@@ -58,6 +58,59 @@ phone to the "Audio mini config" network, pick your home network and type the pa
 
 New firmware goes over Wi-Fi with `make ota`, so the case stays closed.
 
+## Setting it up
+
+### The knob menu
+
+Press the knob once and the display starts blinking the current input. Turn the knob to pick
+`SPOT`, ` TV `, `PHON` or `CONF`, then press again to confirm. If you leave it alone for 8 seconds,
+the menu closes without changing anything.
+
+### Connecting to your Wi-Fi
+
+You only need to do this once, or when you change your router or password.
+
+1. Press the knob, turn to `CONF` and press again. The box restarts, and the display scrolls
+   `WIFI: AUDIO MINI CONFIG 192.168.4.1`. Music stops while it's in this mode, but the inputs and the
+   volume still work.
+2. On your phone, open the Wi-Fi settings and join the network called **Audio mini config**. It has no
+   password.
+3. A setup page should open by itself, the same way hotel Wi-Fi login pages do. If it doesn't, open a
+   browser and go to `192.168.4.1`.
+4. Pick your home network from the list. For a hidden network, choose the last item,
+   "Inna (ukryta) sieć…", and type its name in the box that appears.
+5. Type your Wi-Fi password in the "Hasło" field and press "Zapisz i połącz". The page is in Polish,
+   but those are the only two things to fill in.
+6. The box restarts and joins your network. Your phone goes back to your home Wi-Fi on its own.
+
+If nothing is saved within 5 minutes, the box gives up and starts normally with the old settings.
+
+When the box can't reach your network, the display scrolls one of these instead of the clock:
+
+| Message | What it means | What to do |
+|---|---|---|
+| `BAD WIFI PASSWORD` | the router turned the password down | run `CONF` again and retype it |
+| `NO NETWORK` | it can't see a network with that name | check the name, or move the box closer to the router |
+| `NO WIFI` | something else, often the router restarting | wait a minute; it keeps trying by itself |
+
+### Connecting Spotify
+
+1. Make sure your phone is on the same Wi-Fi as the box.
+2. Open Spotify, start any song, tap the speaker icon at the bottom and choose **Audio mini**.
+3. That's it. The box remembers the account and reconnects by itself after a power cut. Someone else at
+   home can pick Audio mini from their own phone and account at any time.
+
+### Finding the web page
+
+The web page lives at `http://<device-address>:8080`. The easiest way to find the address is your
+router's list of connected devices; the box shows up as `audio-mini`. On a Mac or iPhone,
+`http://audio-mini.local:8080` usually works too.
+
+### Settings for people building their own
+
+The device name shown in Spotify, the network name, the pins and the `make ota` password are set at
+build time in the "Audio mini (ESP32)" section of `idf.py menuconfig`. The defaults match the board in `pcb/`.
+
 ## The hardware
 
 | Part | What it does | Connection |
@@ -219,6 +272,58 @@ Do zmiany sieci Wi-Fi nie potrzeba komputera: w menu gałki wybierasz „CONF”
 „Audio mini config”, wybierasz swoją sieć i wpisujesz hasło.
 
 Nowy program idzie przez Wi-Fi poleceniem `make ota`, więc obudowa zostaje zamknięta.
+
+## Pierwsze uruchomienie
+
+### Menu gałki
+
+Wciśnij gałkę raz, a wyświetlacz zacznie migać nazwą obecnego wejścia. Kręć, żeby wybrać `SPOT`,
+` TV `, `PHON` albo `CONF`, i wciśnij jeszcze raz, żeby zatwierdzić. Jeśli przez 8 sekund nic nie
+ruszysz, menu zamknie się bez zmian.
+
+### Połączenie z Twoim Wi-Fi
+
+Robisz to raz, albo po zmianie routera lub hasła.
+
+1. Wciśnij gałkę, przekręć do `CONF` i wciśnij jeszcze raz. Urządzenie uruchomi się ponownie,
+   a wyświetlacz zacznie przewijać `WIFI: AUDIO MINI CONFIG 192.168.4.1`. W tym trybie Spotify nie gra,
+   ale wejścia i głośność działają.
+2. W telefonie otwórz ustawienia Wi-Fi i połącz się z siecią **Audio mini config**. Nie ma hasła.
+3. Strona konfiguracji powinna otworzyć się sama, tak jak strony logowania do Wi-Fi w hotelu. Jeśli się
+   nie otworzy, wpisz w przeglądarce `192.168.4.1`.
+4. Wybierz swoją sieć z listy. Dla sieci ukrytej wybierz ostatnią pozycję, „Inna (ukryta) sieć…”,
+   i wpisz jej nazwę w polu, które się pojawi.
+5. Wpisz hasło do Wi-Fi w polu „Hasło” i naciśnij „Zapisz i połącz”.
+6. Urządzenie uruchomi się ponownie i połączy z Twoją siecią. Telefon sam wróci do domowego Wi-Fi.
+
+Jeśli przez 5 minut nic nie zapiszesz, urządzenie odpuści i wystartuje normalnie, ze starymi
+ustawieniami.
+
+Gdy urządzenie nie może połączyć się z siecią, zamiast zegara przewija jeden z napisów:
+
+| Napis | Co znaczy | Co zrobić |
+|---|---|---|
+| `BAD WIFI PASSWORD` | router odrzucił hasło | wejdź jeszcze raz w `CONF` i wpisz je ponownie |
+| `NO NETWORK` | nie widzi sieci o tej nazwie | sprawdź nazwę albo przestaw urządzenie bliżej routera |
+| `NO WIFI` | coś innego, często restart routera | poczekaj chwilę, łączy się samo |
+
+### Połączenie ze Spotify
+
+1. Sprawdź, czy telefon jest w tej samej sieci Wi-Fi co urządzenie.
+2. Otwórz Spotify, puść dowolny utwór, dotknij ikony głośnika na dole i wybierz **Audio mini**.
+3. To wszystko. Urządzenie zapamięta konto i po zaniku prądu połączy się samo. Inny domownik może
+   w każdej chwili wybrać Audio mini ze swojego telefonu i konta.
+
+### Gdzie jest strona WWW
+
+Strona jest pod adresem `http://<adres-urządzenia>:8080`. Najłatwiej znaleźć adres na liście
+podłączonych urządzeń w routerze; urządzenie widać tam jako `audio-mini`. Na Macu i iPhonie zwykle
+działa też `http://audio-mini.local:8080`.
+
+### Ustawienia dla budujących
+
+Nazwę widoczną w Spotify, nazwę w sieci, piny i hasło do `make ota` ustawia się przed kompilacją
+w części „Audio mini (ESP32)” w `idf.py menuconfig`. Domyślne wartości pasują do płytki z `pcb/`.
 
 ## Sprzęt
 
